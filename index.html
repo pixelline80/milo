@@ -310,6 +310,8 @@ body:not(.first) #home:not([hidden])>*{animation:none!important}
 @keyframes gOut{to{opacity:0;transform:scale(.82)}}
 @keyframes hIn{from{opacity:0;transform:scale(1.06)}}
 @keyframes hOut{to{opacity:0;transform:scale(.94)}}
+body.bk .screen,body.bk #modal,body.bk #modal>div{animation:none!important;transition:none!important}
+html,body{overscroll-behavior-x:none;overscroll-behavior-y:none}
 /* النوافذ: فتح وقفل بحركة ناعمة */
 #modal{transition:background .26s;animation:mfade .24s}
 @keyframes mfade{from{background:rgba(0,0,0,0)}}
@@ -780,19 +782,8 @@ function bonusFx(v){if(!v)return;const g=$("gm");try{g.animate([{transform:"scal
 let VL=1,MVN=null;try{VL=+localStorage.getItem("mwv")||1}catch(e){}
 const VN=()=>VL>1.2?"أعلى":VL>.9?"عالي":VL>.5?"متوسط":"واطي";
 function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("mwv",VL)}catch(e){}if(MVN)MVN.gain.value=VOL*VL;ac();sPop(3,1)}
-/* ===== زرار الرجوع: ما بيقفلش التطبيق، بيرجع خطوة جوه اللعبة ===== */
-(function(){const G={g:1};let xT=0,xs=0;
- const push=()=>{try{history.pushState(G,"")}catch(e){}};
- const say=m=>{const x=$("xt");x.textContent=m;clearTimeout(xs);xs=setTimeout(()=>x.textContent="",2000)};
- const arm=()=>{try{if(!(history.state&&history.state.g))push()}catch(e){}};try{history.replaceState({r:1},"")}catch(e){}
- addEventListener("pointerdown",arm,true);addEventListener("touchstart",arm,{capture:true,passive:true});addEventListener("keydown",arm,true);
- addEventListener("popstate",e=>{if(e.state&&e.state.g)return;
-  const M=$("modal"),inGame=!$("game").hidden;
-  if(!M.hidden){M.hidden=true;if(inGame&&ended)goHome();push();return}
-  if(inGame){push();quit();return}
-  say("اضغط رجوع مرة كمان للخروج");clearTimeout(xT);xT=setTimeout(()=>{xT=0;arm()},2200)});
- addEventListener("pointerdown",()=>{if(xT){clearTimeout(xT);xT=0}},true);
- document.addEventListener("backbutton",e=>{e.preventDefault();history.back()});
+/* الرجوع (سحب النظام / زرار الرجوع) متلغي: مفيش history بيتضاف، والخروج من اللعبة بزرار X بس */
+(function(){const M=$("modal");
  document.querySelectorAll(".hero,.tile2").forEach(e=>{e.setAttribute("role","button");e.tabIndex=0;e.addEventListener("keydown",k=>{if(k.key==="Enter"||k.key===" "){k.preventDefault();e.click()}})});
  [["u","تراجع"],["h","تلميح"],["b","قنبلة"]].forEach(([c,l])=>{const b=document.querySelector(".bb."+c);b&&b.setAttribute("aria-label",l)});
 })();
@@ -872,7 +863,7 @@ function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("m
     fin();
     var g=id==="game",to=$(id),from=$(g?"home":"game"),swap=to.hidden;
     _show(id);
-    if(!swap||reduced)return;
+    if(!swap||reduced||document.body.classList.contains("bk"))return;
     var o=OX+"px "+OY+"px";
     from.hidden=false;leaving=from;
     if(g){to.style.transformOrigin=o}else{from.style.transformOrigin=o}
@@ -887,7 +878,7 @@ function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("m
     get:function(){return closing||d.get.call(M)},
     set:function(v){
       if(v){if(closing||d.get.call(M))return;
-        if(reduced){d.set.call(M,true);return}
+        if(reduced||document.body.classList.contains("bk")){d.set.call(M,true);return}
         closing=1;M.classList.add("out");clearTimeout(T);T=setTimeout(done,280)}
       else{clearTimeout(T);closing=0;M.classList.remove("out");M.style.background="";d.set.call(M,false)}
     }});
