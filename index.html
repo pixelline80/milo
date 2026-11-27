@@ -891,6 +891,7 @@ function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("m
         closing=1;M.classList.add("out");clearTimeout(T);T=setTimeout(done,280)}
       else{clearTimeout(T);closing=0;M.classList.remove("out");M.style.background="";d.set.call(M,false)}
     }});
+  if(!M.hidden)M.classList.add("sheet");
   var _modal=window.modal;
   window.modal=function(){
     var was=!M.hidden,r=_modal.apply(this,arguments);
