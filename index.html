@@ -297,8 +297,34 @@ button:focus-visible,[role=button]:focus-visible{outline:3px solid #ffd95a;outli
 #modal.sheet #mb button.cx{display:none}
 #modal.confirm>div,#modal.result>div{animation:mpop .3s cubic-bezier(.2,1.4,.4,1)}
 </style>
+<style>
+/* ===== حركة التنقل بنمط التطبيقات العالمية ===== */
+.screen:not([hidden]){animation:none}
+body:not(.first) #home:not([hidden])>*{animation:none!important}
+.screen.leaving{position:absolute;left:0;right:0;top:0;bottom:0;z-index:5;pointer-events:none}
+.screen.e-game{animation:gIn .36s cubic-bezier(.2,.85,.25,1) both;z-index:6}
+.screen.l-game{animation:gOut .28s cubic-bezier(.4,0,1,1) both}
+.screen.e-home{animation:hIn .38s cubic-bezier(.2,.85,.25,1) both}
+.screen.l-home{animation:hOut .3s cubic-bezier(.4,0,.6,1) both}
+@keyframes gIn{from{opacity:0;transform:scale(.82)}}
+@keyframes gOut{to{opacity:0;transform:scale(.82)}}
+@keyframes hIn{from{opacity:0;transform:scale(1.06)}}
+@keyframes hOut{to{opacity:0;transform:scale(.94)}}
+/* النوافذ: فتح وقفل بحركة ناعمة */
+#modal{transition:background .26s;animation:mfade .24s}
+@keyframes mfade{from{background:rgba(0,0,0,0)}}
+#modal.drag{transition:none}
+#modal.sheet>div{animation:shup .4s cubic-bezier(.32,.72,0,1)}
+@keyframes shup{from{transform:translateY(100%);opacity:1}}
+#modal.out{background:rgba(0,0,0,0)!important;pointer-events:none;animation:none}
+#modal.out>div{animation:none!important;opacity:0;transform:scale(.92);transition:transform .22s cubic-bezier(.4,0,1,1),opacity .2s}
+#modal.out.sheet>div{opacity:1;transform:translateY(105%);transition:transform .27s cubic-bezier(.4,0,1,1)}
+#modal>div.swp{animation:swp .22s ease-out!important}
+@keyframes swp{from{opacity:.25;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.screen,#modal,#modal>div{animation-duration:.01s!important;transition-duration:.01s!important}}
+</style>
 </head>
-<body>
+<body class="first">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0z" fill="#ffc53d"/><path d="M7 5H3.5c0 3 1.5 5 3.8 5.4M17 5h3.5c0 3-1.5 5-3.8 5.4" fill="none" stroke="#ffc53d" stroke-width="1.8"/><path d="M10.5 14h3v3h-3zM7.5 21h9l-1-4h-7z" fill="#e69a00"/></symbol>
 <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2.5c.8 3.8 5.5 6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.2 1-3.8 2.2-5 .2 1.6.8 2.4 1.8 2.8C10 8.6 10.6 5.3 12 2.5z" fill="#ff7a2f"/><path d="M12 12c1.4 1.5 2.6 2.6 2.6 4.3a2.6 2.6 0 0 1-5.2 0c0-1.7 1.2-2.8 2.6-4.3z" fill="#ffd55a"/></symbol>
@@ -831,6 +857,64 @@ function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("m
     if(dy>90){closeSheet()}else{card.style.transition="transform .2s";card.style.transform="";setTimeout(function(){card.style.transition=""},220)}
     dy=0}
   mh.addEventListener("pointerup",end);mh.addEventListener("pointercancel",end);
+})();
+</script>
+<script>
+/* ===== تنقل ناعم: شاشات + نوافذ + سحب لتحت من أي مكان في الورقة ===== */
+(function(){
+  var reduced=false;try{reduced=matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}
+  setTimeout(function(){document.body.classList.remove("first")},1400);
+  var OX=innerWidth/2,OY=innerHeight/2;
+  addEventListener("pointerdown",function(e){OX=e.clientX;OY=e.clientY},true);
+  var _show=window.show,tm=0,leaving=null,CL=["leaving","e-game","l-game","e-home","l-home"];
+  function fin(){clearTimeout(tm);["home","game"].forEach(function(i){var e=$(i);CL.forEach(function(c){e.classList.remove(c)})});if(leaving){leaving.hidden=true;leaving=null}}
+  window.show=function(id){
+    fin();
+    var g=id==="game",to=$(id),from=$(g?"home":"game"),swap=to.hidden;
+    _show(id);
+    if(!swap||reduced)return;
+    var o=OX+"px "+OY+"px";
+    from.hidden=false;leaving=from;
+    if(g){to.style.transformOrigin=o}else{from.style.transformOrigin=o}
+    from.classList.add("leaving",g?"l-home":"l-game");
+    to.classList.add(g?"e-game":"e-home");
+    tm=setTimeout(fin,380);
+  };
+  var M=$("modal"),card=M.firstElementChild,closing=0,T=0;
+  var d=Object.getOwnPropertyDescriptor(HTMLElement.prototype,"hidden");
+  function done(){closing=0;M.classList.remove("out");d.set.call(M,true)}
+  Object.defineProperty(M,"hidden",{configurable:true,
+    get:function(){return closing||d.get.call(M)},
+    set:function(v){
+      if(v){if(closing||d.get.call(M))return;
+        if(reduced){d.set.call(M,true);return}
+        closing=1;M.classList.add("out");clearTimeout(T);T=setTimeout(done,280)}
+      else{clearTimeout(T);closing=0;M.classList.remove("out");M.style.background="";d.set.call(M,false)}
+    }});
+  var _modal=window.modal;
+  window.modal=function(){
+    var was=!M.hidden,r=_modal.apply(this,arguments);
+    card.style.transform="";card.style.transition="";
+    if(was){card.classList.remove("swp");void card.offsetWidth;card.classList.add("swp")}else card.classList.remove("swp");
+    card.scrollTop=0;return r};
+  /* سحب الورقة لتحت من أي مكان طالما المحتوى في أوله */
+  var y0=0,dy=0,on=0,ok=0,t0=0;
+  card.addEventListener("touchstart",function(e){
+    ok=M.classList.contains("sheet")&&!closing&&e.touches.length===1&&!(e.target.closest&&e.target.closest("#mh"));
+    y0=e.touches[0].clientY;dy=0;on=0;t0=Date.now()},{passive:true});
+  card.addEventListener("touchmove",function(e){
+    if(!ok)return;var m=e.touches[0].clientY-y0;
+    if(!on){if(m>8&&card.scrollTop<=0){on=1;y0=e.touches[0].clientY;m=0;M.classList.add("drag")}else return}
+    dy=Math.max(0,m);card.style.transform="translateY("+dy+"px)";
+    M.style.background="rgba(0,0,0,"+(.6*(1-Math.min(1,dy/420)))+")";e.preventDefault()},{passive:false});
+  function rel(){
+    if(!on)return;on=0;M.classList.remove("drag");
+    var v=dy/Math.max(1,Date.now()-t0);
+    if(dy>110||(v>.6&&dy>40)){try{mdK++}catch(x){}M.style.background="";M.hidden=true}
+    else{card.style.transition="transform .3s cubic-bezier(.2,.9,.3,1)";card.style.transform="";M.style.background="";
+      setTimeout(function(){card.style.transition=""},320)}
+    dy=0}
+  card.addEventListener("touchend",rel);card.addEventListener("touchcancel",rel);
 })();
 </script>
 </body>
