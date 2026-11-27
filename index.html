@@ -325,6 +325,7 @@ html,body{overscroll-behavior-x:none;overscroll-behavior-y:none}
 @keyframes swp{from{opacity:.25;transform:translateY(8px)}}
 @media (prefers-reduced-motion:reduce){.screen,#modal,#modal>div{animation-duration:.01s!important;transition-duration:.01s!important}}
 </style>
+<style>html,body{overscroll-behavior-x:none!important;overscroll-behavior:none!important}#edgeL,#edgeR{position:fixed;top:0;bottom:0;width:22px;z-index:99999;touch-action:none;background:transparent}#edgeL{left:0}#edgeR{right:0}</style>
 </head>
 <body class="first">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -918,5 +919,6 @@ function exitGame(){allowExit=true;try{window.close()}catch(e){}
  setTimeout(function(){try{history.go(-2)}catch(e){}},150);
  setTimeout(function(){location.replace("about:blank")},700)}
 </script>
+<div id="edgeL"></div><div id="edgeR"></div><script>["edgeL","edgeR"].forEach(function(i){var e=document.getElementById(i);["touchstart","touchmove"].forEach(function(t){e.addEventListener(t,function(ev){ev.preventDefault()},{passive:false})})})</script>
 </body>
 </html>
