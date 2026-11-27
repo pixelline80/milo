@@ -776,7 +776,7 @@ const starRow=n=>"<div class='sr'>"+[0,1,2].map(i=>'<svg class="ic '+(i<n?"on":"
 const starMini=n=>[0,1,2].map(i=>'<svg class="ic '+(i<n?"":"off")+'"><use href="#i-star"/></svg>').join("");
 function flash(c){if(lite)return;const v=$("vg");v.style.setProperty("--vc",c>3?"255,91,115":c>2?"255,182,39":"96,160,255");try{v.animate([{opacity:0},{opacity:1,offset:.25},{opacity:0}],{duration:460,easing:"ease-out"})}catch(e){}}
 function settings(){const man=(()=>{try{return localStorage.getItem("mwlite")==="1"}catch(e){return false}})();
- modal("الإعدادات","",[[mute?"الصوت: مقفول":"الصوت: شغّال",()=>{toggleSnd();settings()}],["مستوى الصوت: "+VN(),()=>{cycVol();settings()}],["الأداء: "+(man?"سريع دايمًا (أخف تأثيرات)":"تلقائي"),()=>{try{localStorage.setItem("mwlite",man?"0":"1")}catch(e){}setLite(!man);settings()}],["إعادة الشرح",how,1],["إغلاق",null,1]])}
+ modal("الإعدادات","",[[mute?"الصوت: مقفول":"الصوت: شغّال",()=>{toggleSnd();settings()}],["مستوى الصوت: "+VN(),()=>{cycVol();settings()}],["الأداء: "+(man?"سريع دايمًا (أخف تأثيرات)":"تلقائي"),()=>{try{localStorage.setItem("mwlite",man?"0":"1")}catch(e){}setLite(!man);settings()}],["إعادة الشرح",how,1],["الخروج من اللعبة",exitGame,1],["إغلاق",null,1]])}
 try{if(localStorage.getItem("mwlite")==="1")setLite(true)}catch(e){}
 function bonusFx(v){if(!v)return;const g=$("gm");try{g.animate([{transform:"scale(1)"},{transform:"scale(1.7)",color:"#ffd95a"},{transform:"scale(1)"}],{duration:380})}catch(e){}}
 let VL=1,MVN=null;try{VL=+localStorage.getItem("mwv")||1}catch(e){}
@@ -908,6 +908,15 @@ function cycVol(){VL=VL>1.2?1:VL>.9?.6:VL>.5?.3:1.33;try{localStorage.setItem("m
     dy=0}
   card.addEventListener("touchend",rel);card.addEventListener("touchcancel",rel);
 })();
+</script>
+<script>
+/* الرجوع (زرار/سحبة النظام) مبيعملش حاجة ومبيخرجش من اللعبة. الخروج الحقيقي من الإعدادات > الخروج من اللعبة */
+var allowExit=false;
+(function(){try{history.pushState({mw:1},"")}catch(e){}
+ addEventListener("popstate",function(){if(allowExit)return;try{history.pushState({mw:1},"")}catch(e){}})})();
+function exitGame(){allowExit=true;try{window.close()}catch(e){}
+ setTimeout(function(){try{history.go(-2)}catch(e){}},150);
+ setTimeout(function(){location.replace("about:blank")},700)}
 </script>
 </body>
 </html>
